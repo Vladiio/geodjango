@@ -39,6 +39,8 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'django.contrib.gis',
 
+    'graphene',
+    'graphene_django',
     'world',
 ]
 
@@ -125,3 +127,7 @@ USE_TZ = True
 STATIC_URL = '/static/'
 
 AUTH_USER_MODEL = 'world.User'
+
+GRAPHENE = {
+    'SCHEMA': 'world.schema.schema'
+}
