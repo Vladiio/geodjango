@@ -1,12 +1,11 @@
-import json
-
 from django.contrib.gis.geos import Point
 from django.contrib.gis.measure import D
 from django.contrib.gis.db.models.functions import Distance
 from django.contrib.auth import get_user_model
+from django.contrib.auth import authenticate
+
 
 import graphene
-from graphql.language import ast
 from graphene_django.types import DjangoObjectType
 
 from world.models import Item
@@ -33,12 +32,31 @@ class GraphUser(DjangoObjectType):
 
 class Query(graphene.ObjectType):
 
-    closest_items = graphene.List(GraphItem,
-                                  user_location=graphene.Argument(graphene.List(graphene.Float)))
-    user = graphene.List(GraphUser)
+    closest_items = graphene.List(
+        GraphItem,
+        user_location=graphene.Argument(graphene.List(graphene.Float), required=True)
+    )
+
+    user = graphene.Field(
+        GraphUser,
+        username=graphene.Argument(graphene.String, required=True),
+        password=graphene.Argument(graphene.String, required=True)
+    )
 
     def resolve_user(self, context, request, info):
-        return User.objects.all()
+        username = context.get("username", "")
+        password = context.get("password", "")
+
+        user = None
+        if not request.user.is_authenticated:
+            user = authenticate(request,
+                                username=username,
+                                password=password)
+        else:
+            user = request.user
+
+        return user
+
 
     def resolve_closest_items(self, context, request, info):
         distance = 5000
