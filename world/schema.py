@@ -1,48 +1,46 @@
-from graphene import ObjectType, Node, Schema, AbstractType
-from graphene_django.fields import DjangoConnectionField
-from graphene_django.types import DjangoObjectType
+from django.contrib.gis.geos import Point
+
 import graphene
+from graphql.language import ast
+from graphene_django.types import DjangoObjectType
 
 from world.models import Item
 
 
-class ItemNode(DjangoObjectType):
+class LocationPoint(graphene.Scalar):
+    # custom field for location data
 
-    location = graphene.String()
+    @staticmethod
+    def serialize(point):
+        return [point.x, point.y]
 
-    def resolve_location(self, *args, **kwargs):
-        return "x: {} y: {}".format(
-            self.location.x,
-            self.location.y
-        )
+    @staticmethod
+    def parse_literal(node):
+        if isinstance(node, ast.ListValue):
+            values = [float(location.value) for location in node.values]
+            latitude, longitude = values
+            return Point(latitude, longitude)
+
+    @staticmethod
+    def parse_value(value):
+        return value
+
+
+class GraphItem(DjangoObjectType):
+
+    location = LocationPoint()
 
     class Meta:
         model = Item
-        interfaces = (Node, )
 
 
-class SearchItems(graphene.Mutation):
+class Query(graphene.ObjectType):
+    closest_items = graphene.List(GraphItem, user_location=graphene.Argument(LocationPoint))
 
-    all_items = graphene.List(ItemNode)
-
-    def mutate(root, args, request, info):
-        all_items = Item.objects.all()[:]
-        return SearchItems(all_items=all_items)
-
-
-class MyMutations(graphene.ObjectType):
-
-    search_items = SearchItems.Field()
+    def resolve_closest_items(self, context, request, info):
+        user_location = context.get('user_location')
+        if user_location is not None:
+            return Item.objects.all()
 
 
-
-
-class Query(ObjectType):
-    #item = Node.Field(ItemNode)
-    all_items = DjangoConnectionField(ItemNode)
-
-    def resolve_item(self):
-        return None
-
-
-schema = Schema(query=Query, mutation=MyMutations)
+schema = graphene.Schema(query=Query)
