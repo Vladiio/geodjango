@@ -17,8 +17,11 @@ from django.conf.urls import url
 from django.contrib import admin
 
 from graphene_django.views import GraphQLView
+from world.views import FrontendAppView
+
 
 urlpatterns = [
+    url(r'$^', FrontendAppView.as_view(), name="home"),
     url(r'^admin/', admin.site.urls),
     url(r'^graphql', GraphQLView.as_view(graphiql=True))
 ]

@@ -131,3 +131,10 @@ AUTH_USER_MODEL = 'world.User'
 GRAPHENE = {
     'SCHEMA': 'world.schema.schema'
 }
+
+REACT_APP_DIR = os.path.join(BASE_DIR, 'front')
+
+
+STATICFILES_DIRS = [
+    os.path.join(REACT_APP_DIR, 'build', 'static')
+]
