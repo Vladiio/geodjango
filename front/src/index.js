@@ -1,8 +1,11 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
+
 import {Row, Column, Button} from 'react-foundation';
 
 import './index.css';
+import {fetchItemsList, fetchItems} from './utils.js';
+
 
 function Item(props) {
 	return (
@@ -29,7 +32,7 @@ function ItemsList(props){
 			<Column large={5} centerOnLarge>
 				<h3>Items List</h3>
 				<List items={items} />
-				<Button>Submit</Button>
+				<Button onClick={fetchItems}>Submit</Button>
 			</Column>
 		</Row>
 	);
