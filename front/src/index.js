@@ -25,14 +25,72 @@ function List(props){
 	)
 }
 
+class LocationForm extends React.Component {
+
+	constructor(props) {
+		super(props);
+		this.state = {
+			longitude: '',
+			latitude: ''
+		};
+
+		this.handleInputChange = this.handleInputChange.bind(this);
+		this.handleSubmit = this.handleSubmit.bind(this);
+	}
+
+	handleSubmit(event) {
+		alert(this.state.longitude, this.state.latitude);
+		event.preventDefault();
+	}
+
+	handleInputChange(event) {
+		const currentValue = event.target.value;
+		const name = event.target.name;
+
+		this.setState({
+			[name]: currentValue
+		});
+
+	}
+
+	render() {
+
+		return (
+			<form onSubmit={this.handleSubmit}>
+				<Column large={4} centerOnLarge>
+
+					<label>Please enter your location data
+						<input onChange={this.handleInputChange}
+							value={this.state.latitude}
+							type="number"
+							name="latitude"
+							placeholder="Latitude "/>
+					</label>
+
+					<input onChange={this.handleInputChange}
+						value={this.state.longitude}
+						type="number"
+						name="longitude"
+						placeholder="Longitude"/>
+				</Column>
+
+				<input type="submit"
+					className="button"
+					onClick={fetchItems}
+					value="Find items"/>
+
+			</form>
+		);
+	}
+}
+
 
 function ItemsList(props){
 	return (
 		<Row>
-			<Column large={5} centerOnLarge>
-				<h3>Items List</h3>
+			<Column large={6} centerOnLarge>
+				<h3>Items located in radius 5 km:</h3>
 				<List items={items} />
-				<Button onClick={fetchItems}>Submit</Button>
 			</Column>
 		</Row>
 	);
@@ -47,6 +105,7 @@ class App extends React.Component {
 				<Column large={9} centerOnLarge>
 					<div className="main-container">
 						<ItemsList items={items}/>
+						<LocationForm />
 					</div>
 				</Column>
 			</Row>

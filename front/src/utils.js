@@ -1,7 +1,7 @@
 import $ from 'jquery';
 
 
-function fetchItems() {
+function fetchItems(successHandler) {
   let data = {
     "query": " { closestItems(userLocation: [1.2, 1.2]) { id name }} "
   }
