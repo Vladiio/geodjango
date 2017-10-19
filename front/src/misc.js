@@ -16,6 +16,7 @@ const query = `
     user(username: $username, password: $password) {
       location
       items{
+        id
         name
         location
       }
