@@ -2,6 +2,7 @@
 const query = `
   query items($longitude: Float!, $latitude: Float!) {
     closestItems(userLocation: [$longitude, $latitude]) {
+      id
       name
       location
     }

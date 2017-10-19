@@ -3,9 +3,12 @@ import ReactDOM from 'react-dom';
 
 import {Row, Column} from 'react-foundation';
 
+import LocationForm from './location-form.js';
+import {query} from './graphql-data';
+import {costructGraphqlRequest} from './utils.js';
 import './index.css';
-import LocationForm from './location-form.js'
-import {query, entryUrl} from './graphql-data.js';
+
+
 
 
 function Item(props) {
@@ -55,23 +58,23 @@ class App extends React.Component {
 		this.handleFormSubmittion = this.handleFormSubmittion.bind(this);
 	}
 
+	updateItems(data) {
+		console.log(data)
+		this.setState({
+			items: data.closestItems
+		});
+	}
+
 	handleFormSubmittion(longitude, latitude) {
-		const variables = {
+		const data = {
 			longitude: parseFloat(longitude),
 			latitude: parseFloat(latitude)
-		};
-
-		let options = {
-			method: 'post',
-			headers: {'Content-Type': 'application/json'},
-			body: JSON.stringify({query, variables})
-		};
-
-		let request = new Request('/graphql', options)
+		}
+		const request = costructGraphqlRequest(query, data);
 
 		fetch(request).then(
 			response => response.json()).then(
-				data => {console.log(data)}).catch(e => {console.log(e)});
+				data => {this.updateItems(data.data)}).catch(e => {console.log(e)});
 	}
 
 	render() {
