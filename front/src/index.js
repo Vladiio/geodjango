@@ -11,26 +11,34 @@ import './index.css';
 
 
 
-function Item(props) {
+function ItemRow(props) {
 	return (
-			<li>{props.name}</li>
+		<tr>
+			<td>{props.name}</td>
+			<td>{props.longitude}</td>
+			<td>{props.latitude}</td>
+			<td>Unknown{/* TODO */}</td>
+		</tr>
 	);
 }
 
-function List(props){
+function ItemsBody(props){
 	const itemList = props.items.map((item) => (
-			<Item key={item.id} name={item.name} />
+			<ItemRow key={item.id}
+				name={item.name}
+			 	longitude={item.location[0]}
+				latitude={item.location[1]}/>
 	));
 	return (
-		<ul>
+		<tbody>
 			{itemList}
-		</ul>
+		</tbody>
 
 	)
 }
 
 
-function ItemsContainer(props) {
+function ItemsTable(props) {
 
 	if (!props.items.length) {
 		return null;
@@ -38,9 +46,20 @@ function ItemsContainer(props) {
 
 	return (
 		<Row>
-			<Column large={6} centerOnLarge>
+			<Column large={7} centerOnLarge>
 				<h3>Items located in radius 5 km:</h3>
-				<List items={props.items} />
+				<table>
+					<thead>
+						<tr>
+							<th>Name</th>
+							<th>Longitude</th>
+							<th>Latitude</th>
+							<th>Distance</th>
+						</tr>
+					</thead>
+					<ItemsBody items={props.items} />
+				</table>
+
 			</Column>
 		</Row>
 	);
@@ -59,7 +78,6 @@ class App extends React.Component {
 	}
 
 	updateItems(data) {
-		console.log(data)
 		this.setState({
 			items: data.closestItems
 		});
@@ -82,8 +100,8 @@ class App extends React.Component {
 			<Row>
 				<Column large={9} centerOnLarge>
 					<div className="main-container">
-						<ItemsContainer items={this.state.items}/>
 						<LocationForm onSubmit={this.handleFormSubmittion}/>
+						<ItemsTable items={this.state.items}/>
 					</div>
 				</Column>
 			</Row>
