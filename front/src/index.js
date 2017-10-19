@@ -3,80 +3,47 @@ import ReactDOM from 'react-dom';
 
 import {Row, Column} from 'react-foundation';
 
-import {withScriptjs, withGoogleMap, GoogleMap, Marker} from 'react-google-maps';
+import {
+	withScriptjs,
+	withGoogleMap,
+	GoogleMap,
+	Marker} from 'react-google-maps';
+import {compose, withProps} from 'recompose';
 
-import LocationForm from './location-form.js';
+import LoginForm from './location-form.js';
 import {costructGraphqlRequest} from './utils.js';
 import {
 	query,
 	googleMapsUrl,
-	mapsKey
+	mapsKey,
+	defaultCoords
 } from './misc.js';
 import './index.css';
 
 
-const ItemMap = withScriptjs(withGoogleMap((props) =>
-	<GoogleMap
-		bootstrapURLKeys={{key: mapsKey}}
-		defaultCenter={{lat: 1.2, lng: 1.2}}
-		defaultZoom={11}/>
-));
+const ItemMap = compose(
+	withProps({
+		googleMapURL: googleMapsUrl,
+		loadingElement: <div style={{ height: `100%` }} />,
+		containerElement: <div style={{ height: `400px` }} />,
+		mapElement: <div style={{ height: `100%` }} />
+	}),
+	withScriptjs,
+	withGoogleMap
+)((props) => {
+	const lat = props.user.isLoggedIn ? props.user.location[0] : defaultCoords[0];
+	const lng = props.user.isLoggedIn ? props.user.location[1] : defaultCoords[1];
 
-
-
-function ItemRow(props) {
 	return (
-		<tr>
-			<td>{props.name}</td>
-			<td>{props.longitude}</td>
-			<td>{props.latitude}</td>
-			<td>Unknown{/* TODO */}</td>
-		</tr>
-	);
-}
+		<GoogleMap
+			bootstrapURLKeys={{key: mapsKey}}
+			center={{lat: lat, lng: lng}}
+			defaultZoom={6}>
 
-function ItemsBody(props){
-	const itemList = props.items.map((item) => (
-			<ItemRow key={item.id}
-				name={item.name}
-			 	longitude={item.location[0]}
-				latitude={item.location[1]}/>
-	));
-	return (
-		<tbody>
-			{itemList}
-		</tbody>
-
+			{props.user.isLoggedIn && <Marker position={{lat: lat, lng: lng}}/>}
+		</GoogleMap>
 	)
-}
-
-
-function ItemsTable(props) {
-
-	if (!props.items.length) {
-		return null;
-	}
-
-	return (
-		<Row>
-			<Column large={7} centerOnLarge>
-				<h3>Items located in radius 5 km:</h3>
-				<table>
-					<thead>
-						<tr>
-							<th>Name</th>
-							<th>Longitude</th>
-							<th>Latitude</th>
-							<th>Distance</th>
-						</tr>
-					</thead>
-					<ItemsBody items={props.items} />
-				</table>
-
-			</Column>
-		</Row>
-	);
-}
+});
 
 
 class App extends React.Component {
@@ -84,28 +51,72 @@ class App extends React.Component {
 	constructor(props) {
 		super(props);
 		this.state = {
-			items: []
+			items: [],
+			user: {
+				username: '',
+				password: '',
+				location: [],
+				isLoggedIn: false,
+			},
+			isInvalidCredentials: false
 		};
 
 		this.handleFormSubmittion = this.handleFormSubmittion.bind(this);
+		this.handleInputChange = this.handleInputChange.bind(this);
 	}
 
-	updateItems(data) {
-		this.setState({
-			items: data.closestItems
+	handleFormSubmittion() {
+		this.setState(prevState => {
+			const newState = Object.assign({}, prevState);
+			newState.user.username = '';
+			newState.user.password = '';
+			return newState;
 		});
-	}
 
-	handleFormSubmittion(longitude, latitude) {
-		const data = {
-			longitude: parseFloat(longitude),
-			latitude: parseFloat(latitude)
-		}
-		const request = costructGraphqlRequest(query, data);
+		const variables = {
+				username: this.state.user.username,
+				password: this.state.user.password
+		};
+		const request = costructGraphqlRequest(query, variables);
 
 		fetch(request).then(
 			response => response.json()).then(
-				data => {this.updateItems(data.data)}).catch(e => {console.log(e)});
+				(data) => {this.handleFetchUser(data)}).catch(e => console.log(e));
+	}
+
+	handleInputChange(fieldName, newValue) {
+		const user = {
+			[fieldName]: newValue
+		};
+
+		this.setState(prevState => {
+			// save previous user field e.g. password
+			const newUser = Object.assign({}, prevState.user, user);
+			const newState = Object.assign({}, prevState);
+			newState.user = newUser;
+			return newState;
+		});
+	}
+
+	handleFetchUser(data) {
+		console.log(data);
+		const defaultUser = {};
+		const defaultState = {};
+
+		if (data.data && data.data.user) {
+			defaultUser.isLoggedIn = true;
+			defaultUser.location = data.data.user.location;
+		} else {
+			defaultState.isInvalidCredentials = true;
+		}
+
+		this.setState(prevState => {
+			const newUser = Object.assign({}, prevState.user, defaultUser)
+			const newState = Object.assign({}, prevState, defaultState);
+			newState.user = newUser;
+			console.log(newState);
+			return newState;
+		});
 	}
 
 	render() {
@@ -113,13 +124,15 @@ class App extends React.Component {
 			<Row>
 				<Column large={9} centerOnLarge>
 					<div className="main-container">
-						<LocationForm onSubmit={this.handleFormSubmittion}/>
-						<ItemsTable items={this.state.items}/>
+						<LoginForm
+							isInvalidCredentials={this.state.isInvalidCredentials}
+							onSubmit={this.handleFormSubmittion}
+							onChange={this.handleInputChange}
+							username={this.state.user.username}
+							password={this.state.user.password}
+							isLoggedIn={this.state.user.isLoggedIn}/>
 						<ItemMap
-							googleMapURL={googleMapsUrl}
-							loadingElement={<div style={{ height: `100%` }} />}
-							containerElement={<div style={{ height: `400px` }} />}
-							mapElement={<div style={{ height: `100%` }} />}/>
+							user={this.state.user}/>
 					</div>
 				</Column>
 			</Row>

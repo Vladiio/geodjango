@@ -3,63 +3,59 @@ import React from 'react';
 import {Column} from 'react-foundation';
 
 
-class LocationForm extends React.Component {
+class LoginForm extends React.Component {
 
 	constructor(props) {
 		super(props);
-		this.state = {
-			longitude: '',
-			latitude: ''
-		};
 
 		this.handleInputChange = this.handleInputChange.bind(this);
 		this.handleSubmit = this.handleSubmit.bind(this);
 	}
 
 	handleSubmit(event) {
-    const longitude = this.state.longitude;
-    const latitude = this.state.latitude;
-
     event.preventDefault();
-
-    this.props.onSubmit(longitude, latitude);
+    this.props.onSubmit();
 	}
 
 	handleInputChange(event) {
 		const currentValue = event.target.value;
-		const name = event.target.name;
+		const fieldName = event.target.name;
 
-		this.setState({
-			[name]: currentValue
-		});
-
+		this.props.onChange(fieldName, currentValue);
 	}
 
 	render() {
-
+		if (this.props.isLoggedIn) {
+			return null;
+		}
+		const label = (this.props.isInvalidCredentials ?
+									 <p style={{color: "red"}}>"Invalid credentials"</p> :
+									 <p>Please enter your credentials</p>);
 		return (
 			<form onSubmit={this.handleSubmit}>
 				<Column large={4} centerOnLarge>
 
-					<label>Please enter your location data
+					<label>{label}
 						<input onChange={this.handleInputChange}
-							value={this.state.latitude}
-							type="number"
-							name="latitude"
-							placeholder="Latitude "/>
+							value={this.props.username}
+							type="text"
+							name="username"
+							placeholder="username"/>
 					</label>
 
 					<input onChange={this.handleInputChange}
-						value={this.state.longitude}
-						type="number"
-						name="longitude"
-						placeholder="Longitude"/>
+						value={this.props.password}
+						type="password"
+						name="password"
+						placeholder="password"/>
+
+					<input type="submit"
+						className="button expanded"
+						onClick={this.handleSubmit}
+						value="Sign in"/>
+
 				</Column>
 
-				<input type="submit"
-					className="button"
-					onClick={this.handleSubmit}
-					value="Find items"/>
 
 			</form>
 		);
@@ -67,4 +63,4 @@ class LocationForm extends React.Component {
 }
 
 
-export default LocationForm;
+export default LoginForm;
