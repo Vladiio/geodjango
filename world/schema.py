@@ -25,9 +25,18 @@ class GraphItem(DjangoObjectType):
 class GraphUser(DjangoObjectType):
 
     location = graphene.List(graphene.Float)
+    items = graphene.List(GraphItem)
 
     class Meta:
         model = User
+
+    def resolve_items(self, context, request, info):
+        distance = 5000
+        user_location = Point(self.location.x, self.location.y)
+        return Item.objects.filter(
+                location__distance_lte=(user_location, D(m=1000000))
+                ).annotate(distance=Distance('location', user_location)
+                ).order_by('distance')
 
 
 class Query(graphene.ObjectType):
