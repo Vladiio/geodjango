@@ -3,11 +3,24 @@ import ReactDOM from 'react-dom';
 
 import {Row, Column} from 'react-foundation';
 
+import {withScriptjs, withGoogleMap, GoogleMap, Marker} from 'react-google-maps';
+
 import LocationForm from './location-form.js';
-import {query} from './graphql-data';
 import {costructGraphqlRequest} from './utils.js';
+import {
+	query,
+	googleMapsUrl,
+	mapsKey
+} from './misc.js';
 import './index.css';
 
+
+const ItemMap = withScriptjs(withGoogleMap((props) =>
+	<GoogleMap
+		bootstrapURLKeys={{key: mapsKey}}
+		defaultCenter={{lat: 1.2, lng: 1.2}}
+		defaultZoom={11}/>
+));
 
 
 
@@ -102,6 +115,11 @@ class App extends React.Component {
 					<div className="main-container">
 						<LocationForm onSubmit={this.handleFormSubmittion}/>
 						<ItemsTable items={this.state.items}/>
+						<ItemMap
+							googleMapURL={googleMapsUrl}
+							loadingElement={<div style={{ height: `100%` }} />}
+							containerElement={<div style={{ height: `400px` }} />}
+							mapElement={<div style={{ height: `100%` }} />}/>
 					</div>
 				</Column>
 			</Row>

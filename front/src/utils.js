@@ -1,4 +1,4 @@
-import {entryUrl} from './graphql-data.js';
+import {apiUrl} from './misc.js';
 
 
 function costructGraphqlRequest(query, variables) {
@@ -9,7 +9,7 @@ function costructGraphqlRequest(query, variables) {
     body: JSON.stringify({query, variables})
   };
 
-  return new Request('/graphql', options)
+  return new Request(apiUrl, options)
 
 }
 
