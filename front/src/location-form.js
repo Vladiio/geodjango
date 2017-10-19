@@ -25,7 +25,7 @@ class LoginForm extends React.Component {
 	}
 
 	render() {
-		if (this.props.isLoggedIn) {
+		if (this.props.user.isLoggedIn) {
 			return null;
 		}
 		const label = (this.props.isInvalidCredentials ?
@@ -37,14 +37,14 @@ class LoginForm extends React.Component {
 
 					<label>{label}
 						<input onChange={this.handleInputChange}
-							value={this.props.username}
+							value={this.props.user.username}
 							type="text"
 							name="username"
 							placeholder="username"/>
 					</label>
 
 					<input onChange={this.handleInputChange}
-						value={this.props.password}
+						value={this.props.user.password}
 						type="password"
 						name="password"
 						placeholder="password"/>

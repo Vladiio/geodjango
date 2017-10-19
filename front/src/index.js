@@ -46,6 +46,19 @@ const ItemMap = compose(
 });
 
 
+const Welcome = (props) => {
+	if (!props.user.isLoggedIn) {
+		return null;
+	}
+	return (
+		<Column large={9} centerOnLarge>
+			<h3>Nice to see you again, {props.user.username}</h3>
+			<p>You can find here some items located in radius 5 km near you</p>
+		</Column>
+	);
+}
+
+
 class App extends React.Component {
 
 	constructor(props) {
@@ -66,12 +79,6 @@ class App extends React.Component {
 	}
 
 	handleFormSubmittion() {
-		this.setState(prevState => {
-			const newState = Object.assign({}, prevState);
-			newState.user.username = '';
-			newState.user.password = '';
-			return newState;
-		});
 
 		const variables = {
 				username: this.state.user.username,
@@ -104,17 +111,20 @@ class App extends React.Component {
 		const defaultState = {};
 
 		if (data.data && data.data.user) {
+			// success
 			defaultUser.isLoggedIn = true;
 			defaultUser.location = data.data.user.location;
 		} else {
+			// fail
 			defaultState.isInvalidCredentials = true;
+			defaultUser.username = '';
+			defaultUser.password = '';
 		}
 
 		this.setState(prevState => {
 			const newUser = Object.assign({}, prevState.user, defaultUser)
 			const newState = Object.assign({}, prevState, defaultState);
 			newState.user = newUser;
-			console.log(newState);
 			return newState;
 		});
 	}
@@ -128,11 +138,9 @@ class App extends React.Component {
 							isInvalidCredentials={this.state.isInvalidCredentials}
 							onSubmit={this.handleFormSubmittion}
 							onChange={this.handleInputChange}
-							username={this.state.user.username}
-							password={this.state.user.password}
-							isLoggedIn={this.state.user.isLoggedIn}/>
-						<ItemMap
 							user={this.state.user}/>
+						<Welcome user={this.state.user} />
+						<ItemMap user={this.state.user}/>
 					</div>
 				</Column>
 			</Row>
