@@ -67,8 +67,18 @@ class App extends React.Component {
 			then(data => {
 				if (!data.errors) {
 					this.login(data.data.user);
+				} else {
+					this.setAppStatus(true);
 				}
 			});
+	}
+
+	setAppStatus(status) {
+		this.setState(prevState => {
+			const newState = Object.assign({}, prevState);
+			newState.isLoaded = status;
+			return newState;
+		})
 	}
 
 	login(user) {
@@ -155,32 +165,6 @@ class App extends React.Component {
 			// save previous user field e.g. password
 			const newUser = Object.assign({}, prevState.user, user);
 			const newState = Object.assign({}, prevState);
-			newState.user = newUser;
-			return newState;
-		});
-	}
-
-	processUserData(data) {
-		const defaultUser = {};
-		const defaultState = {};
-		console.log(data);
-
-		if (!data.errors) {
-			// success
-			defaultUser.isLoggedIn = true;
-			defaultUser.password = '';
-			defaultUser.location = data.data.login.user.location;
-			defaultUser.items = data.data.login.user.items;
-		} else {
-			// fail
-			defaultState.isInvalidCredentials = true;
-			defaultUser.username = '';
-			defaultUser.password = '';
-		}
-
-		this.setState(prevState => {
-			const newUser = Object.assign({}, prevState.user, defaultUser)
-			const newState = Object.assign({}, prevState, defaultState);
 			newState.user = newUser;
 			return newState;
 		});
