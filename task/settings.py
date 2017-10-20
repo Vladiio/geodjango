@@ -128,6 +128,11 @@ STATIC_URL = '/static/'
 
 AUTH_USER_MODEL = 'world.User'
 
+DEFAULT_LOCATION = {
+    'lat': 49.246292,
+    'lng': -123.116226
+}
+
 GRAPHENE = {
     'SCHEMA': 'world.schema.schema'
 }
@@ -138,3 +143,4 @@ REACT_APP_DIR = os.path.join(BASE_DIR, 'front')
 STATICFILES_DIRS = [
     os.path.join(REACT_APP_DIR, 'build', 'static')
 ]
+
