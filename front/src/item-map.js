@@ -37,7 +37,8 @@ const ItemMap = compose(
 		<GoogleMap
 			bootstrapURLKeys={{key: mapsKey}}
 			center={{lat: lat, lng: lng}}
-			defaultZoom={6}>
+			defaultZoom={6}
+			onRightClick={props.onRightClick}>
 
 			{props.user.isLoggedIn && <Marker position={{lat: lat, lng: lng}}/>}
 			{itemList}

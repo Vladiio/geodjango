@@ -15,10 +15,16 @@ const Welcome = (props) => {
 	if (!props.user.isLoggedIn) {
 		return null;
 	}
+	const lat = props.user.location[0];
+	const lng = props.user.location[1];
+
 	return (
 		<Column large={9} centerOnLarge>
-			<h3>Nice to see you again, {props.user.username}</h3>
-			<p>You can find here some items located in radius 5 km near you</p>
+			<h3>It's nice to see you again, {props.user.username}.</h3>
+			<p>Your coordinates now are: lat - {lat}, lng - {lng}
+				(right click on the map will change them).
+				You can find here some items located in radius 5 km near you.
+			</p>
 		</Column>
 	);
 }
@@ -40,6 +46,11 @@ class App extends React.Component {
 
 		this.handleFormSubmittion = this.handleFormSubmittion.bind(this);
 		this.handleInputChange = this.handleInputChange.bind(this);
+		this.handleRightClick = this.handleRightClick.bind(this);
+	}
+
+	handleRightClick(event) {
+		console.log(event.latLng.lat());
 	}
 
 	handleFormSubmittion() {
@@ -52,7 +63,7 @@ class App extends React.Component {
 
 		fetch(request).then(
 			response => response.json()).then(
-				(data) => {this.handleFetchUser(data)}).catch(e => console.log(e));
+				(data) => {this.processUserData(data)}).catch(e => console.log(e));
 	}
 
 	handleInputChange(fieldName, newValue) {
@@ -69,7 +80,7 @@ class App extends React.Component {
 		});
 	}
 
-	handleFetchUser(data) {
+	processUserData(data) {
 		const defaultUser = {};
 		const defaultState = {};
 
@@ -107,8 +118,10 @@ class App extends React.Component {
 							onChange={this.handleInputChange}
 							user={this.state.user}/>
 						<Welcome user={this.state.user} />
-						{isLoggedIn && <ItemsTable items={this.state.user.items} />}
-						{isLoggedIn && <ItemMap user={this.state.user}/>}
+						{isLoggedIn && <ItemsTable items={this.state.user.items}/>}
+						{isLoggedIn && <ItemMap
+							user={this.state.user}
+							onRightClick={this.handleRightClick}/>}
 					</div>
 				</Column>
 			</Row>
