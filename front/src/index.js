@@ -6,11 +6,9 @@ import {Row, Column} from 'react-foundation';
 import ItemMap from './item-map.js';
 import LoginForm from './login-form.js';
 import costructGraphqlRequest from './utils.js';
+import ItemsTable from './items-list.js';
 import {query} from './misc.js';
 import './index.css';
-
-
-
 
 
 const Welcome = (props) => {
@@ -98,6 +96,8 @@ class App extends React.Component {
 	}
 
 	render() {
+		const isLoggedIn = this.state.user.isLoggedIn;
+		
 		return (
 			<Row>
 				<Column large={9} centerOnLarge>
@@ -108,7 +108,8 @@ class App extends React.Component {
 							onChange={this.handleInputChange}
 							user={this.state.user}/>
 						<Welcome user={this.state.user} />
-						{this.state.user.isLoggedIn && <ItemMap user={this.state.user}/>}
+						{isLoggedIn && <ItemsTable items={this.state.user.items} />}
+						{isLoggedIn && <ItemMap user={this.state.user}/>}
 					</div>
 				</Column>
 			</Row>
