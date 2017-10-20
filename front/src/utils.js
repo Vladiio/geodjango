@@ -5,6 +5,7 @@ function costructGraphqlRequest(query, variables) {
 
   let options = {
     method: 'post',
+    credentials: 'same-origin',
     headers: {'Content-Type': 'application/json'},
     body: JSON.stringify({query, variables})
   };

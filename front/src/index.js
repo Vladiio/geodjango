@@ -7,9 +7,13 @@ import ItemMap from './item-map.js';
 import LoginForm from './login-form.js';
 import costructGraphqlRequest from './utils.js';
 import ItemsTable from './items-list.js';
-import {query} from './misc.js';
+import {query, mutation} from './misc.js';
 import './index.css';
 
+
+const LogoutButton = (props) => {
+	return <a onClick={props.onClick}>Logout</a>
+};
 
 const Welcome = (props) => {
 	if (!props.user.isLoggedIn) {
@@ -25,10 +29,10 @@ const Welcome = (props) => {
 				(right click on the map will change them).
 				You can find here some items located in radius 5 km near you.
 			</p>
+			<LogoutButton onClick={props.handleLogoutClick}/>
 		</Column>
 	);
 }
-
 
 class App extends React.Component {
 
@@ -41,16 +45,86 @@ class App extends React.Component {
 				location: [],
 				isLoggedIn: false,
 			},
-			isInvalidCredentials: false
+			isInvalidCredentials: false,
+			isLoaded: false
 		};
 
 		this.handleFormSubmittion = this.handleFormSubmittion.bind(this);
 		this.handleInputChange = this.handleInputChange.bind(this);
 		this.handleRightClick = this.handleRightClick.bind(this);
+		this.handleLogoutClick = this.handleLogoutClick.bind(this);
 	}
 
 	handleRightClick(event) {
 		console.log(event.latLng.lat());
+	}
+
+	componentDidMount() {
+		const vars = this.get_credentials()
+		const request = costructGraphqlRequest(query, vars);
+		fetch(request)
+			.then(response => response.json()).
+			then(data => {
+				if (!data.errors) {
+					this.login(data.data.user);
+				}
+			});
+	}
+
+	login(user) {
+		this.setState(prevState => {
+			const newState = Object.assign({}, prevState);
+			newState.user = user;
+			newState.user.isLoggedIn = true;
+			newState.isLoaded = true;
+
+			return newState;
+		});
+	}
+
+	handleLogoutClick(event) {
+		const mutation = `
+			mutation{
+				logout{
+					status
+				}
+			}`;
+		const request = costructGraphqlRequest(mutation, {})
+
+		fetch(request)
+			.then(response => response.json())
+			.then(data => {this.logout()})
+			.catch(e => {console.log(e)});
+	}
+
+	logout() {
+		this.setState(prevState => {
+			const newState = Object.assign({}, prevState);
+			newState.user.isLoggedIn = false;
+			newState.user.username = '';
+			newState.user.password = '';
+			newState.isInvalidCredentials = false;
+
+			return newState;
+		});
+	}
+
+	get_credentials() {
+		return {
+			username: this.state.user.username,
+			password: this.state.user.password
+		};
+	}
+
+	loginFailed() {
+		this.setState(prevState =>{
+			const newState = Object.assign({}, prevState);
+			newState.isInvalidCredentials = true;
+			newState.user.login = '';
+			newState.user.password = '';
+
+			return newState
+		});
 	}
 
 	handleFormSubmittion() {
@@ -59,11 +133,17 @@ class App extends React.Component {
 				username: this.state.user.username,
 				password: this.state.user.password
 		};
-		const request = costructGraphqlRequest(query, variables);
+		const request = costructGraphqlRequest(mutation, variables);
 
-		fetch(request).then(
-			response => response.json()).then(
-				(data) => {this.processUserData(data)}).catch(e => console.log(e));
+		fetch(request)
+			.then(response => response.json())
+			.then(data => {
+				if (data.errors) {
+					this.loginFailed();
+				} else {
+					this.login(data.data.login.user);
+				}
+			}).catch(e => console.log(e));
 	}
 
 	handleInputChange(fieldName, newValue) {
@@ -83,13 +163,14 @@ class App extends React.Component {
 	processUserData(data) {
 		const defaultUser = {};
 		const defaultState = {};
+		console.log(data);
 
-		if (data.data && data.data.user) {
+		if (!data.errors) {
 			// success
 			defaultUser.isLoggedIn = true;
 			defaultUser.password = '';
-			defaultUser.location = data.data.user.location;
-			defaultUser.items = data.data.user.items;
+			defaultUser.location = data.data.login.user.location;
+			defaultUser.items = data.data.login.user.items;
 		} else {
 			// fail
 			defaultState.isInvalidCredentials = true;
@@ -107,17 +188,19 @@ class App extends React.Component {
 
 	render() {
 		const isLoggedIn = this.state.user.isLoggedIn;
+		const isLoaded = this.state.isLoaded;
 
 		return (
 			<Row>
 				<Column large={9} centerOnLarge>
 					<div className="main-container">
-						<LoginForm
+						{isLoaded && <LoginForm
 							isInvalidCredentials={this.state.isInvalidCredentials}
 							onSubmit={this.handleFormSubmittion}
 							onChange={this.handleInputChange}
-							user={this.state.user}/>
-						<Welcome user={this.state.user} />
+							user={this.state.user}/>}
+						<Welcome user={this.state.user}
+							handleLogoutClick={this.handleLogoutClick}/>
 						{isLoggedIn && <ItemsTable items={this.state.user.items}/>}
 						{isLoggedIn && <ItemMap
 							user={this.state.user}

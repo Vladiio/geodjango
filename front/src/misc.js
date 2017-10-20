@@ -1,18 +1,35 @@
 // GRAPHQL
 
-const query = `
-  query users($username: String!, $password: String!) {
-    user(username: $username, password: $password) {
-      location
-      items{
-        id
-        name
+const mutation = `
+  mutation login($username: String!, $password: String!) {
+    login(username: $username, password: $password) {
+      user{
         location
-        distance
+        items{
+          id
+          name
+          location
+          distance
+        }
       }
     }
   }
 `;
+
+const query = `
+  query user{
+    user{
+      location,
+      username,
+      items{
+        id
+        name,
+        location,
+        distance
+      }
+    }
+  }
+`
 
 
 const apiUrl = '/graphql';
@@ -26,6 +43,7 @@ const defaultCoords = [49.24, -123.11];
 export {
   googleMapsUrl,
   apiUrl,
+  mutation,
   query,
   mapsKey,
   defaultCoords
