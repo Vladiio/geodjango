@@ -14,4 +14,4 @@ function costructGraphqlRequest(query, variables) {
 }
 
 
-export {costructGraphqlRequest};
+export default costructGraphqlRequest;

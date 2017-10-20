@@ -1,16 +1,5 @@
 // GRAPHQL
 
-const oldQuery = `
-  query items($longitude: Float!, $latitude: Float!) {
-    closestItems(userLocation: [$longitude, $latitude]) {
-      id
-      name
-      location
-    }
-  }
-`;
-
-
 const query = `
   query users($username: String!, $password: String!) {
     user(username: $username, password: $password) {

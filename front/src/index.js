@@ -3,55 +3,14 @@ import ReactDOM from 'react-dom';
 
 import {Row, Column} from 'react-foundation';
 
-import {
-	withScriptjs,
-	withGoogleMap,
-	GoogleMap,
-	Marker} from 'react-google-maps';
-import {compose, withProps} from 'recompose';
-
-import LoginForm from './location-form.js';
-import {costructGraphqlRequest} from './utils.js';
-import {
-	query,
-	googleMapsUrl,
-	mapsKey,
-	defaultCoords
-} from './misc.js';
+import ItemMap from './item-map.js';
+import LoginForm from './login-form.js';
+import costructGraphqlRequest from './utils.js';
+import {query} from './misc.js';
 import './index.css';
 
 
-const ItemMap = compose(
-	withProps({
-		googleMapURL: googleMapsUrl,
-		loadingElement: <div style={{ height: `100%` }} />,
-		containerElement: <div style={{ height: `400px` }} />,
-		mapElement: <div style={{ height: `100%` }} />
-	}),
-	withScriptjs,
-	withGoogleMap
-)((props) => {
-	const lat = props.user.isLoggedIn ? props.user.location[0] : defaultCoords[0];
-	const lng = props.user.isLoggedIn ? props.user.location[1] : defaultCoords[1];
-	const items = props.user.items;
 
-	let itemList = null;
-	if (props.user.isLoggedIn) {
-		itemList = items.map(item => (
-			<Marker key={item.id} position={{lat: item.location[0], lng: item.location[1]}}/>
-		));
-	}
-	return (
-		<GoogleMap
-			bootstrapURLKeys={{key: mapsKey}}
-			center={{lat: lat, lng: lng}}
-			defaultZoom={6}>
-
-			{props.user.isLoggedIn && <Marker position={{lat: lat, lng: lng}}/>}
-			{itemList}
-		</GoogleMap>
-	)
-});
 
 
 const Welcome = (props) => {
@@ -120,6 +79,7 @@ class App extends React.Component {
 		if (data.data && data.data.user) {
 			// success
 			defaultUser.isLoggedIn = true;
+			defaultUser.password = '';
 			defaultUser.location = data.data.user.location;
 			defaultUser.items = data.data.user.items;
 		} else {
@@ -148,7 +108,7 @@ class App extends React.Component {
 							onChange={this.handleInputChange}
 							user={this.state.user}/>
 						<Welcome user={this.state.user} />
-						<ItemMap user={this.state.user}/>
+						{this.state.user.isLoggedIn && <ItemMap user={this.state.user}/>}
 					</div>
 				</Column>
 			</Row>
