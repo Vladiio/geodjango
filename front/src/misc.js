@@ -8,6 +8,7 @@ const query = `
         id
         name
         location
+        distance
       }
     }
   }

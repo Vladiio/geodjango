@@ -17,9 +17,13 @@ User = get_user_model()
 class GraphItem(DjangoObjectType):
 
     location = graphene.List(graphene.Float)
+    distance = graphene.Int()
 
     class Meta:
         model = Item
+
+    def resolve_distance(self, context, request, info):
+        return int(self.distance.m)
 
 
 class GraphUser(DjangoObjectType):
@@ -41,11 +45,6 @@ class GraphUser(DjangoObjectType):
 
 class Query(graphene.ObjectType):
 
-    closest_items = graphene.List(
-        GraphItem,
-        user_location=graphene.Argument(graphene.List(graphene.Float), required=True)
-    )
-
     user = graphene.Field(
         GraphUser,
         username=graphene.Argument(graphene.String, required=True),
@@ -65,17 +64,6 @@ class Query(graphene.ObjectType):
             user = request.user
 
         return user
-
-
-    def resolve_closest_items(self, context, request, info):
-        distance = 5000
-        user_coords = context.get('user_location')
-        if user_coords is not None:
-            user_location = Point(*user_coords)
-            return Item.objects.filter(
-                location__distance_lte=(user_location, D(m=1000000))
-                ).annotate(distance=Distance('location', user_location)
-                ).order_by('distance')
 
 
 schema = graphene.Schema(query=Query)

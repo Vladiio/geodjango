@@ -10,7 +10,7 @@ function ItemRow(props) {
       <td>{props.name}</td>
       <td>{lat}</td>
       <td>{lng}</td>
-      <td>Unknown{/* TODO */}</td>
+      <td>{props.distance}</td>
     </tr>
   );
 }
@@ -18,7 +18,10 @@ function ItemRow(props) {
 
 function ItemsTable(props) {
   const items = props.items.map((item) => (
-    <ItemRow key={item.id} name={item.name} location={item.location}/>
+    <ItemRow key={item.id}
+      name={item.name}
+      location={item.location}
+      distance={item.distance}/>
   ));
   return (
     <table>
@@ -27,7 +30,7 @@ function ItemsTable(props) {
           <td>Name</td>
           <td>Latitude</td>
           <td>Longitude</td>
-          <td>Distance</td>
+          <td>Distance from you (m)</td>
         </tr>
       </thead>
       <tbody>

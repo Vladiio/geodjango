@@ -29,7 +29,6 @@ class App extends React.Component {
 	constructor(props) {
 		super(props);
 		this.state = {
-			items: [],
 			user: {
 				username: '',
 				password: '',
@@ -97,7 +96,7 @@ class App extends React.Component {
 
 	render() {
 		const isLoggedIn = this.state.user.isLoggedIn;
-		
+
 		return (
 			<Row>
 				<Column large={9} centerOnLarge>
