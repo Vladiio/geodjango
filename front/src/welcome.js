@@ -15,7 +15,7 @@ const Welcome = (props) => {
 	return (
 		<Column large={9} centerOnLarge>
 			<h3>It's nice to see you, {props.user.username}.</h3>
-			<p>Your coordinates now are: lat - {lat}, lng - {lng}.
+			<p>Your coordinates now are: lat  {lat}, lng  {lng}.
 				You can find here some items located in radius 5 km near you.
 			</p>
 			<LogoutButton onClick={props.handleLogoutClick}/>
