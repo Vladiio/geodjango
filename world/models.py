@@ -4,10 +4,16 @@ import os
 from django.db import models
 from django.contrib.gis.db import models as geo_models
 from django.contrib.auth.models import AbstractUser
+from django.contrib.gis.geos import Point
+from django.conf import settings
+
+
+DEFAULT_LOCATION = Point(settings.DEFAULT_LOCATION.get('lat'),
+                         settings.DEFAULT_LOCATION.get('lng'))
 
 
 class User(AbstractUser):
-    location = geo_models.PointField()
+    location = geo_models.PointField(default=DEFAULT_LOCATION)
     token = models.CharField(max_length=40)
 
     def save(self, *args, **kwargs):
