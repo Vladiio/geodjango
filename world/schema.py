@@ -50,7 +50,7 @@ class GraphUser(DjangoObjectType):
         distance = 5000
         user_location = Point(self.location.x, self.location.y)
         return Item.objects.filter(
-                location__distance_lte=(user_location, D(m=1000000))
+                location__distance_lte=(user_location, D(m=distance))
                 ).annotate(distance=Distance('location', user_location)
                 ).order_by('distance')
 
