@@ -14,7 +14,7 @@ class Command(BaseCommand):
         default_lng = settings.DEFAULT_LOCATION['lng']
 
         for item_name in ('Bakery', 'Butcher\'s', 'Chemist\'s'):
-            difference = random.choice((0.02, 0.05, 0.0002, 0.0004))
+            difference = random.choice((0.02, 0.05, 0.008, 0.006, 0.1, 0.06))
 
             item_lat = default_lat - difference
             item_lng = default_lng + difference
