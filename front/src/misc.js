@@ -5,6 +5,7 @@ const mutation = `
     login(username: $username, password: $password) {
       user{
         location
+        username
         items{
           id
           name
