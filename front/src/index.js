@@ -3,6 +3,7 @@ import ReactDOM from 'react-dom';
 
 import {Row, Column} from 'react-foundation';
 
+import Welcome from './welcome.js';
 import ItemMap from './item-map.js';
 import LoginForm from './login-form.js';
 import costructGraphqlRequest from './utils.js';
@@ -10,29 +11,6 @@ import ItemsTable from './items-list.js';
 import {query, mutation} from './misc.js';
 import './index.css';
 
-
-const LogoutButton = (props) => {
-	return <a onClick={props.onClick}>Logout</a>
-};
-
-const Welcome = (props) => {
-	if (!props.user.isLoggedIn) {
-		return null;
-	}
-	const lat = props.user.location[0];
-	const lng = props.user.location[1];
-
-	return (
-		<Column large={9} centerOnLarge>
-			<h3>It's nice to see you again, {props.user.username}.</h3>
-			<p>Your coordinates now are: lat - {lat}, lng - {lng}
-				(right click on the map will change them).
-				You can find here some items located in radius 5 km near you.
-			</p>
-			<LogoutButton onClick={props.handleLogoutClick}/>
-		</Column>
-	);
-}
 
 class App extends React.Component {
 
@@ -63,8 +41,8 @@ class App extends React.Component {
 		const vars = this.get_credentials()
 		const request = costructGraphqlRequest(query, vars);
 		fetch(request)
-			.then(response => response.json()).
-			then(data => {
+			.then(response => response.json())
+			.then(data => {
 				if (!data.errors) {
 					this.login(data.data.user);
 				} else {
